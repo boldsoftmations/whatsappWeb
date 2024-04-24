@@ -1,5 +1,4 @@
-// Home.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import styles from './Home.module.css';
@@ -9,11 +8,17 @@ import { users } from '../../config/UsersList';
 const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Set the selected user to the first user by default when the component mounts
+  useEffect(() => {
+    if (users.length > 0) {
+      setSelectedUser(users[0].username);
+    }
+  }, []);
+
   const handleUserSelect = (username) => {
     setSelectedUser(username);
   };
 
-  console.log("selectedUser",selectedUser)
   return (
     <div className={styles.homeContainer}>
       {/* Header */}

@@ -1,9 +1,12 @@
 /* ChatHistory.module.css */
+
 .chatHistory {
     height: 100%;
     overflow-y: auto;
     padding: 50px;
     background-color: #e5ddd5; /* Background color similar to WhatsApp Web */
+    background-image: url('../../Images//whatsapp_web.jpg'); /* Add background image */
+    background-size: cover; /* Cover the entire container */
   }
   
   .chatContainer {
