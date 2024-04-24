@@ -1,8 +1,167 @@
-.App {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 10px;
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f0f2f5;
 }
 
+.App {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  max-width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.split {
+  height: 100%;
+  position: relative;
+  flex: 1; /* Equal width */
+}
+
+.left {
+  background-color: #ece5dd; /* WhatsApp background color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.right {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column; /* Stack vertically */
+}
+
+.company-name {
+  margin-top: 0;
+  font-size: 24px; /* Company name size */
+  font-weight: bold; /* Make the name bold */
+  color: #525252; /* Color for the company name */
+  margin-bottom: 20px; /* Space between the company name and the form */
+}
+
+.centered {
+  width: 100%;
+  max-width: 360px; /* Set max width for the form */
+  padding: 50px 20px; /* Adjust padding as necessary */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the form */
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-control {
+  margin-bottom: 16px;
+}
+
+.form-control input {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.2s;
+}
+
+.form-control input:focus {
+  border-color: #34b7f1; /* WhatsApp accent color */
+  box-shadow: 0 0 0 2px rgba(52, 183, 241, 0.2);
+}
+
+.submit-button {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 16px;
+  background-color: #25D366; /* WhatsApp button color */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+  background-color: #1da45c;
+}
+
+.change-password-link {
+  margin-top: 15px;
+}
+
+.change-password-link a {
+  color: #34b7f1; /* WhatsApp accent color for links */
+  text-decoration: none; /* Optional: if you want to remove the underline */
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.change-password-link a:hover {
+  color: #25D366; /* WhatsApp button color when hovered */
+  text-decoration: underline; /* Re-add underline on hover for visual feedback */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .App {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .split {
+    width: 100%;
+    flex: none;
+  }
+
+  .right {
+    order: 1; /* Place the form above the image */
+  }
+
+  .left {
+    order: 2;
+    padding: 50px; /* Give some padding to the SVG */
+  }
+
+  .centered {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .left {
+    display: none;
+  }
+
+  .right {
+    padding: 30px;
+  }
+
+  .company-name {
+    font-size: 20px; /* Smaller font size for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .form-control input,
+  .submit-button {
+    margin: 10px 0; /* Give space between form elements */
+  }
+
+  .login-form {
+    max-width: 100%; /* Form takes full width on smaller screens */
+  }
+
+  .centered {
+    padding: 30px 15px;
+  }
+}
