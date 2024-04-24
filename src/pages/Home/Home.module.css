@@ -1,0 +1,26 @@
+.homeContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .mainContent {
+    display: flex;
+    flex: 1;
+    overflow: hidden; /* Hide overflow to prevent double scrollbars */
+  }
+  
+  .sidebar {
+    flex: 0 0 250px; /* Fixed width for sidebar */
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .chatHistory {
+    flex: 1; /* Take remaining space */
+    overflow-y: auto;
+    padding: 20px; /* Add padding for messages */
+    display: flex;
+    flex-direction: column-reverse; /* Reverse message order */
+  }
+  

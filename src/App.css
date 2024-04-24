@@ -79,22 +79,6 @@ body, html {
   background-color: #1da45c;
 }
 
-.change-password-link {
-  margin-top: 15px;
-}
-
-.change-password-link a {
-  color: #34b7f1; /* WhatsApp accent color for links */
-  text-decoration: none; /* Optional: if you want to remove the underline */
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.change-password-link a:hover {
-  color: #25D366; /* WhatsApp button color when hovered */
-  text-decoration: underline; /* Re-add underline on hover for visual feedback */
-}
-
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .App {
