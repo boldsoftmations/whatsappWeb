@@ -1,55 +1,56 @@
 import { useState, useCallback } from "react";
 import "./App.css";
-import whatsappSVG from './Images/whatsappSVG.svg'; 
+import whatsappSVG from "./Images/whatsappSVG.svg";
+import InputLabel from "./components/InputLabel/InputLabel";
+import Button from "./components/Button/Button";
 
 function App() {
   const [inputs, setInputs] = useState({});
 
-  const handleSubmit = useCallback((event) => {
-    event.preventDefault();
-    console.log("Submitted", inputs);
-  }, [inputs]);
+  const handleSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+      console.log("Submitted", inputs);
+    },
+    [inputs]
+  );
 
   const handleChange = useCallback((event) => {
     const { name, value } = event.target;
-    setInputs(prev => ({ ...prev, [name]: value }));
+    setInputs((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   return (
     <div className="App">
-    <div className="split left">
-      <img src={whatsappSVG} alt="WhatsApp" />
-    </div>
-    <div className="split right">
-      <h1 className="company-name">BoldSoftmation LLP</h1>
-      <div className="centered">
+      <div className="split left">
+        <img src={whatsappSVG} alt="WhatsApp" />
+      </div>
+      <div className="split right">
+        <h1 className="company-name">BoldSoftmation LLP</h1>
+        <div className="centered">
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-control">
-              <input
-                type="text"
+              <InputLabel
+                label="Username"
                 name="username"
-                id="username"
-                placeholder="Username"
-                value={inputs.username || ""}
-                onChange={handleChange}
-                required
+                type="text"
+                value={inputs.username}
+                onChange={(event) => handleChange(event)}
               />
             </div>
             <div className="form-control">
-              <input
-                type="password"
+              <InputLabel
+                label="Password"
                 name="password"
-                id="password"
-                placeholder="Password"
-                value={inputs.password || ""}
-                onChange={handleChange}
-                required
+                type="password"
+                value={inputs.password}
+                onChange={(event) => handleChange(event)}
               />
             </div>
-            <button type="submit" className="submit-button">Log In</button>
+            <Button type="submit">Log In</Button>
             <div className="change-password-link">
-            <a href="/change-password">Change Password?</a>
-          </div>
+              <a href="/change-password">Change Password?</a>
+            </div>
           </form>
         </div>
       </div>
