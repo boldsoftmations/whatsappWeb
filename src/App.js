@@ -5,7 +5,7 @@ import "./App.css";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./pages/LoginForm"));
-const Home = React.lazy(() => import("./pages/Home/Home"));
+const Home = React.lazy(() => import("./pages/Home"));
 
 function App() {
   return (
