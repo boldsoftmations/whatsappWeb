@@ -12,30 +12,20 @@ import {
 import CustomTextField from "../components/CustomTextField";
 import CustomButton from "../components/CustomButton";
 import { CustomLoader } from "../components/CustomLoader";
+import apiService from "../Service/apiService";
+import { MessageAlert } from "../components/MessageAlert";
+import { useNotificationHandling } from "../components/useNotificationHandling";
 
 const SendMessage = ({ setOpenPopup, refreshData }) => {
   const [whatsappGroup, setWhatsappGroup] = useState([]);
   const [open, setOpen] = useState(false);
-  const [allWhatsappGroupMenu, setAllWhatsappGroupMenu] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [isPdf, setIsPdf] = useState(false);
   const [filter, setFilter] = useState("message");
   const [errorMessage, setErrorMessage] = useState("");
-
-//   useEffect(() => {
-//     getAllWhatsappGroup();
-//   }, []);
-
-//   const getAllWhatsappGroup = async () => {
-//     try {
-//       const res = await CustomerServices.getAllWhatsappGroupData();
-//       setAllWhatsappGroupMenu(res.data);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-  console.log("allWhatsappGroupMenu", allWhatsappGroupMenu);
+  const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
+    useNotificationHandling();
 
   // Updated handleFileChange function
   const handleFileChange = async (event) => {
@@ -103,18 +93,12 @@ const SendMessage = ({ setOpenPopup, refreshData }) => {
       }
 
       // Select the appropriate API call
-    //   let apiCall;
-    //   if (uploadedFile) {
-    //     apiCall = CustomerServices.createWhatsappImageData;
-    //   } else {
-    //     apiCall = CustomerServices.createWhatsappImageData;
-    //   }
-
-      // Make the API call
-    //   await apiCall(formData);
+      const response = await apiService.sendMessage(formData);
+      handleSuccess(response.data.message);
       setOpenPopup(false);
       await refreshData();
     } catch (error) {
+      handleError(error);
       console.error("Error creating WhatsApp group", error);
     } finally {
       setOpen(false);
@@ -201,6 +185,12 @@ const SendMessage = ({ setOpenPopup, refreshData }) => {
 
   return (
     <>
+      <MessageAlert
+        open={alertInfo.open}
+        onClose={handleCloseSnackbar}
+        severity={alertInfo.severity}
+        message={alertInfo.message}
+      />
       <CustomLoader open={open} />
       <Box component="form" noValidate onSubmit={(e) => createWhatsappGroup(e)}>
         <FormControl component="fieldset">
@@ -232,7 +222,13 @@ const SendMessage = ({ setOpenPopup, refreshData }) => {
           type="submit"
           size="small"
           variant="contained"
-          sx={{ mt: 3, mb: 2 }}
+          sx={{
+            width: "100%",
+            mt: 3,
+            bgcolor: "#075e54",
+            "&:hover": { bgcolor: "#075e54" },
+            color: "white",
+          }}
         >
           Submit
         </CustomButton>

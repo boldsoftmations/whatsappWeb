@@ -27,12 +27,12 @@ const Home = () => {
     setModals(prevModals => ({ ...prevModals, [modalName]: isOpen }));
   };
 
-  
   const fetchQRCode = async () => {
     setOpen(true); // Show loader
     try {
       const response = await apiService.getQRCodeData();
-      setQrCodeUrl(response.data.qr_code);
+      console.log("response",response)
+      setQrCodeUrl(response.data.data.qr_code);
       handleSuccess(response.data.message);
     } catch (error) {
       handleError(error);
@@ -40,6 +40,8 @@ const Home = () => {
       setOpen(false); // Hide loader
     }
   };
+
+  console.log("qrCodeUrl", qrCodeUrl);  // Debugging to check QR code URL updates
 
   return (
     <>
@@ -50,19 +52,17 @@ const Home = () => {
       <Toolbar />
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#f0f2f5", width: "100%" }}>
         <Stack direction="row" spacing={2} justifyContent="center" sx={{ marginBottom: 4 }}>
-          <CustomButton onClick={() => handleModal("sendMessage", true)} variant="contained" sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>Send Message</CustomButton>
-          <CustomButton onClick={() => handleModal("addCustomer", true)} variant="contained" sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>Add Customer</CustomButton>
-          <CustomButton onClick={() => handleModal("addGroup", true)} variant="contained" sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>Add Group</CustomButton>
+          <CustomButton sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }} onClick={() => handleModal("sendMessage", true)} variant="contained">Send Message</CustomButton>
+          <CustomButton sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }} onClick={() => handleModal("addCustomer", true)} variant="contained">Add Customer</CustomButton>
+          <CustomButton sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }} onClick={() => handleModal("addGroup", true)} variant="contained">Add Group</CustomButton>
           {qrCodeUrl ? (
-            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-              <a href={qrCodeUrl} download={`QRCode-${Date.now()}.png`} style={{ textDecoration: "none" }}>
-                <CustomButton variant="contained" sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>
-                  Download QR Code
-                </CustomButton>
-              </a>
-            </Box>
+            <a href={qrCodeUrl} download={`QRCode-${Date.now()}.png`} style={{ textDecoration: "none" }}>
+              <CustomButton sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }} variant="contained">
+                Download QR Code
+              </CustomButton>
+            </a>
           ) : (
-            <CustomButton onClick={fetchQRCode} variant="contained" sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>
+            <CustomButton sx={{ bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }} onClick={fetchQRCode} variant="contained">
               Get QR Code
             </CustomButton>
           )}

@@ -63,7 +63,7 @@ const AddGroup = ({setOpenPopup}) => {
             type="submit"
             size="small"
             variant="contained"
-            sx={{ width: "100%", mt: 3 }}
+            sx={{ width: "100%", mt: 3,bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}
           >
             Submit
           </CustomButton>
