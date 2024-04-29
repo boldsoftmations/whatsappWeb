@@ -12,13 +12,9 @@ import { useNavigate } from "react-router-dom";
 import { removeUser } from "../Service/TokenService";
 
 const CustomHeader = () => {
-  const [auth, setAuth] = useState(true);
+  const [auth] = useState(true); // Removed unused setAuth variable
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-
-  // const handleChange = (event) => {
-  //   setAuth(event.target.checked);
-  // };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -31,6 +27,7 @@ const CustomHeader = () => {
   const Logout = () => {
     removeUser(navigate);
   };
+
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#075e54" }}>
       <Toolbar>
