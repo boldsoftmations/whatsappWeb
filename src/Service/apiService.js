@@ -24,13 +24,19 @@ const Login = (data) => {
   const sendMessage = (data) => {
     return axiosInstance.post("api/whatsapp/customer-whatsapp/", data);
   };
+
+  const getAllCustomerMessage = () => {
+    return axiosInstance.get(`api/whatsapp/customer-whatsapp/ `);
+  };
+
 const apiService = {
     Login,
     getQRCodeData,
     createCustomer,
     createGroup,
     getGroupData,
-    sendMessage
+    sendMessage,
+    getAllCustomerMessage
 }
 
 export default apiService;

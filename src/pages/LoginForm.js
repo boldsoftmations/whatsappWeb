@@ -108,7 +108,7 @@ function LoginForm() {
                   )
                 }}
               />
-              <CustomButton onClick={handleSubmit} sx={{ width: '100%' }}>
+              <CustomButton onClick={handleSubmit} sx={{ width: '100%',bgcolor: "#075e54", "&:hover": { bgcolor: "#075e54" }, color: "white" }}>
                 Log In
               </CustomButton>
             </Box>
