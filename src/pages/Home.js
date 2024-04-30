@@ -31,25 +31,26 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const fetchCustomerMessages = async (page) => {
-      try {
-        setOpen(true);
-        const response = await apiService.getAllCustomerMessage(page); // Assuming this function can take page number as parameter
-        setCustomerMessage(response.data.results);
-        // Calculate total pages based on count
-        setTotalPages(
-          Math.ceil(response.data.count / response.data.results.length)
-        );
-        console.info("Fetched customer messages:", response.data);
-      } catch (error) {
-        console.error("Error fetching customer messages", error);
-      } finally {
-        setOpen(false);
-      }
-    };
-
     fetchCustomerMessages(page);
   }, [page]);
+
+  const fetchCustomerMessages = async (page) => {
+    try {
+      setOpen(true);
+      const response = await apiService.getAllCustomerMessage(page); // Assuming this function can take page number as parameter
+      setCustomerMessage(response.data.results);
+      // Calculate total pages based on count
+      setTotalPages(
+        Math.ceil(response.data.count / response.data.results.length)
+      );
+      console.info("Fetched customer messages:", response.data);
+    } catch (error) {
+      console.error("Error fetching customer messages", error);
+    } finally {
+      setOpen(false);
+    }
+  };
+
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -170,7 +171,7 @@ const Home = () => {
         openPopup={modals.sendMessage}
         setOpenPopup={() => handleModal("sendMessage", false)}
       >
-        <SendMessage setOpenPopup={() => handleModal("sendMessage", false)} />
+        <SendMessage setOpenPopup={() => handleModal("sendMessage", false)} fetchCustomerMessages={fetchCustomerMessages} page={page} />
       </CustomModal>
       <CustomModal
         title="Add Customer"

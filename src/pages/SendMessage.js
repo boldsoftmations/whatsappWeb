@@ -16,7 +16,7 @@ import apiService from "../Service/apiService";
 import { MessageAlert } from "../components/MessageAlert";
 import { useNotificationHandling } from "../components/useNotificationHandling";
 
-const SendMessage = ({ setOpenPopup, refreshData }) => {
+const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
   const [whatsappGroup, setWhatsappGroup] = useState([]);
   const [open, setOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -96,7 +96,7 @@ const SendMessage = ({ setOpenPopup, refreshData }) => {
       const response = await apiService.sendMessage(formData);
       handleSuccess(response.data.message);
       setOpenPopup(false);
-      await refreshData();
+      await fetchCustomerMessages(page);
     } catch (error) {
       handleError(error);
       console.error("Error creating WhatsApp group", error);
