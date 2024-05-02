@@ -50,7 +50,7 @@ const AddCustomer = ({setOpenPopup}) => {
     setOpen(true);
     const payload = {
       number: customerData.number,
-      groups: customerData.groups.map((group) => group.id), // Ensure each group has an 'id' property
+      groups: customerData.groups.map((group) => group.name), // Ensure each group has an 'id' property
       name: customerData.name,
     };
     try {
