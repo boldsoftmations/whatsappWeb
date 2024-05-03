@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { CssBaseline, Box, Toolbar, Stack, Pagination } from "@mui/material";
 import CustomButton from "../components/CustomButton";
 import CustomHeader from "../components/CustomHeader";
@@ -29,9 +29,10 @@ const Home = () => {
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
-  const handleModal = (modalName, isOpen) => {
-    setModals((prevModals) => ({ ...prevModals, [modalName]: isOpen }));
-  };
+    const handleModal = useCallback((modalName, isOpen) => {
+      setModals((prevModals) => ({ ...prevModals, [modalName]: isOpen }));
+    }, []);
+  
 
   useEffect(() => {
     fetchCustomerMessages(page);
