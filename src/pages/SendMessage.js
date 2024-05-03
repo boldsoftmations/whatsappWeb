@@ -20,7 +20,7 @@ import { MessageAlert } from "../components/MessageAlert";
 import { useNotificationHandling } from "../components/useNotificationHandling";
 
 const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
-  const [whatsappGroup, setWhatsappGroup] = useState([]);
+  const [whatsappGroup, setWhatsappGroup] = useState({ groups: [], message: "", caption: "" });
   const [groupOptions, setGroupOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -50,12 +50,10 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
     };
 
     const handleGroupChange = (event, newValue) => {
-      console.log("newValue",newValue)
-      setWhatsappGroup(prev => ({
-        ...prev,
-        groups: newValue.map(item => item.name)  // Assuming each item has an 'id' property
-      }));
+      setWhatsappGroup((prev) => ({ ...prev, groups: newValue }));
     };
+    
+    
     
   // Updated handleFileChange function
   const handleFileChange = async (event) => {
@@ -103,28 +101,22 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
   const createWhatsappGroup = async (e) => {
     e.preventDefault();
     setOpen(true);
-console.log("whatsapp group",whatsappGroup)
+  
     try {
       const formData = new FormData();
-
-      // Append each group ID as an individual entry to formData
-      // formData.append("groups", JSON.stringify(selectedGroupIds.join(", ")));
-
+  
       // Handle the file upload and associated data
       if (uploadedFile) {
-        const fileKey = "file";
-        const fileName = uploadedFile.name;
-        formData.append(fileKey, uploadedFile);
-        formData.append("filename", fileName);
+        formData.append("file", uploadedFile);
+        formData.append("filename", uploadedFile.name);
         formData.append("caption", whatsappGroup.caption || "");
-        formData.append("group", whatsappGroup.groups.join(','));
-      } else {
-        // For text-only messages
-        formData.append("message", whatsappGroup.message || "");
-        formData.append("group", whatsappGroup.groups.join(','));
       }
-
-      // Select the appropriate API call
+      formData.append("message", whatsappGroup.message || "");
+  
+      // Append groups data correctly
+      const groupNames = whatsappGroup.groups.map((group) => group.name);
+      formData.append("group", JSON.stringify(groupNames));
+  
       const response = await apiService.sendMessage(formData);
       handleSuccess(response.data.message);
       setOpenPopup(false);
@@ -136,7 +128,7 @@ console.log("whatsapp group",whatsappGroup)
       setOpen(false);
     }
   };
-
+  
   const renderInputFields = () => {
     switch (filter) {
       case "message":
@@ -249,7 +241,7 @@ console.log("whatsapp group",whatsappGroup)
             {renderInputFields()}
           </Grid>
           <Grid item xs={12}>
-            <Autocomplete
+          <Autocomplete
               multiple
               id="group-select"
               options={groupOptions}
