@@ -2,7 +2,7 @@ import { axiosInstance } from "./axiosInstance";
 
 
 const Login = (data) => {
-    return axiosInstance.post("api/user/login/", data);
+    return axiosInstance.post("api/user/customer-login/", data);
   };
 
   const getQRCodeData = () => {
