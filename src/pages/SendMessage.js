@@ -49,10 +49,11 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
       }
     };
 
-    const handleGroupChange = (event, value) => {
+    const handleGroupChange = (event, newValue) => {
+      console.log("newValue",newValue)
       setWhatsappGroup(prev => ({
         ...prev,
-        groups: value
+        groups: newValue.map(item => item.name)  // Assuming each item has an 'id' property
       }));
     };
     
@@ -102,7 +103,7 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
   const createWhatsappGroup = async (e) => {
     e.preventDefault();
     setOpen(true);
-
+console.log("whatsapp group",whatsappGroup)
     try {
       const formData = new FormData();
 
@@ -116,9 +117,11 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
         formData.append(fileKey, uploadedFile);
         formData.append("filename", fileName);
         formData.append("caption", whatsappGroup.caption || "");
+        formData.append("group", whatsappGroup.groups.join(','));
       } else {
         // For text-only messages
         formData.append("message", whatsappGroup.message || "");
+        formData.append("group", whatsappGroup.groups.join(','));
       }
 
       // Select the appropriate API call
