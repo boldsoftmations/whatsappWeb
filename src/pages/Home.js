@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { CssBaseline, Box, Toolbar, Stack, Pagination } from "@mui/material";
 import CustomButton from "../components/CustomButton";
 import CustomHeader from "../components/CustomHeader";
@@ -17,12 +17,15 @@ const Home = () => {
     sendMessage: false,
     addCustomer: false,
     addGroup: false,
+    showQRCode: false,
   });
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [customerMessage, setCustomerMessage] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  // const websocketRef = useRef(null);
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
@@ -34,12 +37,49 @@ const Home = () => {
     fetchCustomerMessages(page);
   }, [page]);
 
+  // const connectWebSocket = () => {
+  //   // Ensure the WebSocket connection closes before opening a new one
+  //   if (websocketRef.current) {
+  //     websocketRef.current.close();
+  //   }
+
+  //   // Replace 'yourserver.com/path' with your actual WebSocket server URL
+  //   websocketRef.current = new WebSocket(
+  //     "ws://crmbackend-glutape-staging.herokuapp.com/ws/custom_qr_login/"
+  //   );
+
+  //   websocketRef.current.onopen = () => {
+  //     console.log("WebSocket connected.");
+  //     // Send additional data to the server after the connection is established
+  //     websocketRef.current.send(JSON.stringify({ type: "status" }));
+  //   };
+
+  //   websocketRef.current.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     if (data.scanned) {
+  //       console.log("QR Code has been scanned");
+  //       handleSuccess("QR Code has been scanned");
+  //       fetchQRCode(); // Fetch QR code or perform any other action as needed
+  //     }
+  //   };
+
+  //   websocketRef.current.onerror = (error) => {
+  //     console.error("WebSocket error:", error);
+  //     handleError("WebSocket error:", error);
+  //   };
+
+  //   websocketRef.current.onclose = () => {
+  //     console.log("WebSocket disconnected. Attempting to reconnect...");
+  //     // Attempt to reconnect every 5 seconds
+  //     setTimeout(connectWebSocket, 5000);
+  //   };
+  // };
+
   const fetchCustomerMessages = async (page) => {
+    setOpen(true);
     try {
-      setOpen(true);
-      const response = await apiService.getAllCustomerMessage(page); // Assuming this function can take page number as parameter
+      const response = await apiService.getAllCustomerMessage(page);
       setCustomerMessage(response.data.results);
-      // Calculate total pages based on count
       setTotalPages(
         Math.ceil(response.data.count / response.data.results.length)
       );
@@ -51,26 +91,49 @@ const Home = () => {
     }
   };
 
-
   const handlePageChange = (event, value) => {
     setPage(value);
   };
 
   const fetchQRCode = async () => {
-    setOpen(true); // Show loader
+    setOpen(true);
     try {
       const response = await apiService.getQRCodeData();
-      console.log("response", response);
+      if(response.data.data.qr_code){
       setQrCodeUrl(response.data.data.qr_code);
+      }
       handleSuccess(response.data.message);
+      handleModal("showQRCode", true);
+      // connectWebSocket();
+      setOpen(false);
     } catch (error) {
+      console.log("error",error)
       handleError(error);
-    } finally {
-      setOpen(false); // Hide loader
-    }
+      setOpen(false);
+    } 
   };
 
-  console.log("qrCodeUrl", qrCodeUrl); // Debugging to check QR code URL updates
+  const fetchWhatsappStatus = useCallback(async () => {
+    setLoading(true); // Activate the loader for WhatsApp status check.
+    const checkStatus = async () => {
+      try {
+        const response = await apiService.getWhatsappStatus();
+        handleSuccess(response.data.status);
+        if (response.data.status !== "authenticated") {
+          setTimeout(checkStatus, 3000); // Keep checking every 3 seconds
+        } else {
+          handleModal("showQRCode", false); // Close the QR code modal on success
+          setLoading(false); // Deactivate the loader
+        }
+      } catch (error) {
+        handleError(error);
+        setLoading(false); // Deactivate the loader on error
+      }
+    };
+    checkStatus();
+  }, [handleError, handleSuccess, handleModal]);
+
+  console.log("qrCodeUrl", qrCodeUrl);
 
   return (
     <>
@@ -84,7 +147,10 @@ const Home = () => {
       <CssBaseline />
       <CustomHeader />
       <Toolbar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, width: "100%" }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 3, width: "100%", backgroundColor: "#f0f2f5" }}
+      >
         <Stack
           direction="row"
           spacing={2}
@@ -124,36 +190,17 @@ const Home = () => {
           >
             Add Group
           </CustomButton>
-          {qrCodeUrl ? (
-            <a
-              href={qrCodeUrl}
-              download={`QRCode-${Date.now()}.png`}
-              style={{ textDecoration: "none" }}
-            >
-              <CustomButton
-                sx={{
-                  bgcolor: "#075e54",
-                  "&:hover": { bgcolor: "#075e54" },
-                  color: "white",
-                }}
-                variant="contained"
-              >
-                Download QR Code
-              </CustomButton>
-            </a>
-          ) : (
-            <CustomButton
-              sx={{
-                bgcolor: "#075e54",
-                "&:hover": { bgcolor: "#075e54" },
-                color: "white",
-              }}
-              onClick={fetchQRCode}
-              variant="contained"
-            >
-              Get QR Code
-            </CustomButton>
-          )}
+          <CustomButton
+            sx={{
+              bgcolor: "#075e54",
+              "&:hover": { bgcolor: "#075e54" },
+              color: "white",
+            }}
+            onClick={fetchQRCode}
+            variant="contained"
+          >
+            Get QR Code
+          </CustomButton>
         </Stack>
         {customerMessage.map((message) => (
           <CustomAccordion key={message.id} message={message} />
@@ -171,7 +218,11 @@ const Home = () => {
         openPopup={modals.sendMessage}
         setOpenPopup={() => handleModal("sendMessage", false)}
       >
-        <SendMessage setOpenPopup={() => handleModal("sendMessage", false)} fetchCustomerMessages={fetchCustomerMessages} page={page} />
+        <SendMessage
+          setOpenPopup={() => handleModal("sendMessage", false)}
+          fetchCustomerMessages={fetchCustomerMessages}
+          page={page}
+        />
       </CustomModal>
       <CustomModal
         title="Add Customer"
@@ -186,6 +237,32 @@ const Home = () => {
         setOpenPopup={() => handleModal("addGroup", false)}
       >
         <AddGroup setOpenPopup={() => handleModal("addGroup", false)} />
+      </CustomModal>
+      <CustomModal
+        title="QR Code"
+        openPopup={modals.showQRCode}
+        setOpenPopup={() => handleModal("showQRCode", false)}
+      >
+        <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+          <CustomLoader open={loading} />
+          <img
+            src={qrCodeUrl}
+            alt="QR Code"
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
+        </Box>
+        <CustomButton
+          sx={{
+            width: "100%",
+            bgcolor: "#075e54",
+            "&:hover": { bgcolor: "#075e54" },
+            color: "white",
+          }}
+          onClick={fetchWhatsappStatus}
+          variant="contained"
+        >
+          Submit
+        </CustomButton>
       </CustomModal>
     </>
   );

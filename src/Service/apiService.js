@@ -28,7 +28,10 @@ const Login = (data) => {
   const getAllCustomerMessage = () => {
     return axiosInstance.get(`api/whatsapp/customer-whatsapp/ `);
   };
-
+  
+  const getWhatsappStatus = () => {
+    return axiosInstance.get(`api/whatsapp/qr-status/ `);
+  };
 const apiService = {
     Login,
     getQRCodeData,
@@ -36,7 +39,8 @@ const apiService = {
     createGroup,
     getGroupData,
     sendMessage,
-    getAllCustomerMessage
+    getAllCustomerMessage,
+    getWhatsappStatus
 }
 
 export default apiService;

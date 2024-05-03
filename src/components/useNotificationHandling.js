@@ -1,66 +1,50 @@
 import { useState, useCallback } from "react";
 
-export const useNotificationHandling = (initialErrorMessages = []) => {
-  const [errorMessages, setErrorMessages] = useState(initialErrorMessages);
+export const useNotificationHandling = () => {
   const [alertInfo, setAlertInfo] = useState({
     open: false,
-    message: initialErrorMessages[0] || "",
+    message: "",
     severity: "info",
   });
 
-  const updateAlertInfo = useCallback((messages, severity) => {
+  const updateAlertInfo = useCallback((message, severity) => {
     setAlertInfo({
       open: true,
-      message: messages[0] || "An unexpected error occurred",
+      message: message || "An unexpected event occurred",
       severity,
     });
-    setErrorMessages(messages);
   }, []);
 
   const handleSuccess = useCallback(
-    (message) => {
-      updateAlertInfo([message], "success");
+    (response) => {
+      // Directly create a message from response object
+      const message = response.message || "Operation successful";
+      const status = response.status ? ` (Status: ${response.status})` : '';
+      updateAlertInfo(`${message}${status}`, "success");
     },
     [updateAlertInfo]
   );
 
   const handleError = useCallback(
     (error) => {
-      let errorData = error.response && error.response.data;
-      let extractedErrors = [];
-
-      if (errorData && errorData.detail) {
-        extractedErrors = [errorData.detail];
-      } else if (errorData && errorData.errors) {
-        extractedErrors = Object.entries(errorData.errors).flatMap(
-          ([key, value]) =>
-            Array.isArray(value)
-              ? value.map((msg) => `${key}: ${msg}`)
-              : `${key}: ${value}`
-        );
+      let message = "An unexpected error occurred";
+      // Check if it's a direct error or an API response error
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        message = errorData.message || message;  // Use error message if available
+        const status = errorData.status ? ` (Error Status: ${errorData.status})` : '';
+        message = `${message}${status}`;
+      } else if (typeof error === 'string') {
+        message = error;  // Handle simple string errors
       }
-
-      if (extractedErrors.length === 0) {
-        extractedErrors = ["An unexpected error occurred"];
-      }
-
-      updateAlertInfo(extractedErrors, "error");
+      updateAlertInfo(message, "error");
     },
     [updateAlertInfo]
   );
 
   const handleCloseSnackbar = useCallback(() => {
-    if (errorMessages.length > 1) {
-      const [nextMessage, ...restMessages] = errorMessages;
-      setErrorMessages(restMessages);
-      setAlertInfo((prev) => ({
-        ...prev,
-        message: nextMessage,
-      }));
-    } else {
-      setAlertInfo((prev) => ({ ...prev, open: false }));
-    }
-  }, [errorMessages]);
+    setAlertInfo((prev) => ({ ...prev, open: false }));
+  }, []);
 
   return {
     alertInfo,

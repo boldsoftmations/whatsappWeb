@@ -33,24 +33,23 @@ function LoginForm() {
 
     try {
       setOpen(true);
-      const req = {
-        email: inputs.email,
-        password: inputs.password,
-      };
+      const req = { email: inputs.email, password: inputs.password };
       const response = await apiService.Login(req);
       if (response.data.token.access) {
+        setUserData({
+          access: response.data.token.access,
+          refresh: response.data.token.refresh
+        });
+        handleSuccess("Login successfully");
+        navigate("/home");
+        setOpen(false);
       }
-      setUserData({ access: response.data.token.access, refresh: response.data.token.refresh });
-      handleSuccess("Login successfully");
-      navigate("/home");
-
-      setOpen(false);
     } catch (error) {
       handleError(error);
       console.error("Login error", error);
-    } finally {
       setOpen(false);
     }
+    
   };
 
   return (

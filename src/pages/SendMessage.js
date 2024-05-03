@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Box,
+  Chip,
   FormControl,
   FormControlLabel,
   FormLabel,
   Grid,
   Radio,
   RadioGroup,
+  TextField,
   Typography,
 } from "@mui/material";
 import CustomTextField from "../components/CustomTextField";
@@ -18,6 +21,7 @@ import { useNotificationHandling } from "../components/useNotificationHandling";
 
 const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
   const [whatsappGroup, setWhatsappGroup] = useState([]);
+  const [groupOptions, setGroupOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -27,6 +31,31 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
+    useEffect(() => {
+      getAllGroup();
+    }, []);
+
+    const getAllGroup = async () => {
+      try {
+        setOpen(true);
+        const response = await apiService.getGroupData();
+        setGroupOptions(response.data); // Ensuring response.data is an array of group objects
+        console.info("Fetched group data:", response.data);
+
+      } catch (error) {
+        console.error("Error fetching group data", error);
+      } finally {
+        setOpen(false);
+      }
+    };
+
+    const handleGroupChange = (event, value) => {
+      setWhatsappGroup(prev => ({
+        ...prev,
+        groups: value
+      }));
+    };
+    
   // Updated handleFileChange function
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -215,6 +244,24 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             {renderInputFields()}
+          </Grid>
+          <Grid item xs={12}>
+            <Autocomplete
+              multiple
+              id="group-select"
+              options={groupOptions}
+              getOptionLabel={(option) => option.name} // Assuming option objects have a 'name' property
+              value={whatsappGroup.groups}
+              onChange={handleGroupChange}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip variant="outlined" label={option.name} {...getTagProps({ index })} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} variant="outlined" label="Groups" placeholder="Select groups" />
+              )}
+            />
           </Grid>
         </Grid>
         <CustomButton
