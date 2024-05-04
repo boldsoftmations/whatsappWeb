@@ -1,6 +1,6 @@
-// App.js
 import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { CustomLoader } from "./components/CustomLoader"; // Ensure this is the path to your SuspenseLoader
 import "./App.css";
 import { getLocalAccessToken } from "./Service/TokenService";
 
@@ -9,8 +9,6 @@ const LoginForm = React.lazy(() => import("./pages/LoginForm"));
 const Home = React.lazy(() => import("./pages/Home"));
 
 function App() {
-
-  // PrivateRoute component to manage access to protected routes
   const PrivateRoute = () => {
     const token = getLocalAccessToken();
     return token ? <Home /> : <Navigate to="/" replace />;
@@ -18,7 +16,7 @@ function App() {
 
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<CustomLoader open={true} />}>
         <Routes>
           <Route path="/" element={<LoginForm />} />
           <Route path="/home" element={<PrivateRoute />} />
