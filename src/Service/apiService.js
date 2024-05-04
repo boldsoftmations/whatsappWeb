@@ -13,9 +13,13 @@ const Login = (data) => {
     return axiosInstance.post("api/whatsapp/customer-data/", data);
   };
 
-  const getCustomerData = ( searchValue) => {
+  const getCustomerData = (page, searchValue) => {
     const params = new URLSearchParams();
   
+    if (page) {
+      params.append("page", page);
+    }
+
     if (searchValue) {
       params.append("search", searchValue);
     }
@@ -30,13 +34,8 @@ const Login = (data) => {
     return axiosInstance.post("api/whatsapp/customer-group/", data);
   };
 
-  const getGroupData = ( page,searchValue) => {
+  const getGroupData = ( searchValue) => {
     const params = new URLSearchParams();
-  
-    if (page) {
-      params.append("page", page);
-    }
-
 
     if (searchValue) {
       params.append("search", searchValue);
