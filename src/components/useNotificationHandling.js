@@ -27,21 +27,37 @@ export const useNotificationHandling = () => {
 
   const handleError = useCallback(
     (error) => {
-      let message = "An unexpected error occurred";
-      // Check if it's a direct error or an API response error
+      let message = "";  // Start with an empty message
+  
+      // Check for error responses from APIs
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        message = errorData.message || message;  // Use error message if available
-        const status = errorData.status ? ` (Error Status: ${errorData.status})` : '';
-        message = `${message}${status}`;
+        if (typeof errorData === 'object' && errorData !== null) {
+          // Use provided message if available, else leave the message empty
+          message = errorData.message || "";
+          if (errorData.status) {
+            message += ` (Error Status: ${errorData.status})`; // Append status if available
+          }
+        }
+      } else if (error instanceof Error) {
+        // Handle JavaScript Error objects
+        message = error.message;  // Use message from Error object
       } else if (typeof error === 'string') {
-        message = error;  // Handle simple string errors
+        // Handle simple string errors
+        message = error;
       }
+  
+      // If after all checks the message is still empty, use a generic error message
+      if (!message) {
+        message = "Error occurred";  // Generic fallback message
+      }
+  
+      // Call function to update UI or alert the user
       updateAlertInfo(message, "error");
     },
     [updateAlertInfo]
   );
-
+  
   const handleCloseSnackbar = useCallback(() => {
     setAlertInfo((prev) => ({ ...prev, open: false }));
   }, []);

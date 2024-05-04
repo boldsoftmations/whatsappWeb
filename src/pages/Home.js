@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { CssBaseline, Box, Toolbar, Stack } from "@mui/material";
+import { CssBaseline, Box, Toolbar, Stack, Typography } from "@mui/material";
 import CustomButton from "../components/CustomButton";
 import CustomHeader from "../components/CustomHeader";
 import CustomModal from "../components/CustomModal";
@@ -26,6 +26,8 @@ const Home = () => {
   const [customerMessage, setCustomerMessage] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [status, setStatus] = useState(null);
+  const [contact, setContact] = useState(null);
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
@@ -55,20 +57,44 @@ const Home = () => {
     setCurrentPage(value);
   };
 
+  const WhatsappLogout = async () => {
+    setOpen(true);
+    try {
+      const response = await apiService.WhatsappLogout();
+      handleSuccess(response.data);
+      setStatus(null);
+    } catch (error) {
+      console.log("error fetch", error);
+      handleError(error);
+    } finally {
+      setOpen(false); // Ensure setOpen is called in finally to close the loader no matter what
+    }
+  };
+
   const fetchQRCode = async () => {
     setOpen(true);
     try {
       const response = await apiService.getQRCodeData();
-      if (response.data.data.qr_code) {
-        setQrCodeUrl(response.data.data.qr_code);
+      // Check if 'data' and 'qr_code' are present in the response before trying to access 'qr_code'
+      if (response.data.status === "authenticated") {
+        setStatus(response.data.status);
       }
-      handleSuccess(response.data.message);
+      if (response.data.number) {
+        setContact(response.data.number);
+      }
+      if (response.data && response.data.data && response.data.data.qr_code) {
+        setQrCodeUrl(response.data.data.qr_code);
+      } else {
+        // Optionally handle the case where 'qr_code' is not present
+        console.log("QR Code not found in response:", response.data);
+      }
+      handleSuccess(response.data);
       handleModal("showQRCode", true);
-      setOpen(false);
     } catch (error) {
-      console.log("error", error);
+      console.log("error fetch", error);
       handleError(error);
-      setOpen(false);
+    } finally {
+      setOpen(false); // Ensure setOpen is called in finally to close the loader no matter what
     }
   };
 
@@ -115,6 +141,14 @@ const Home = () => {
           justifyContent="center"
           sx={{ marginBottom: 4 }}
         >
+          {contact && (
+            <Typography
+              variant="body1"
+              sx={{ margin: "20px auto", textAlign: "center" }}
+            >
+              Logged in From this number : {contact}
+            </Typography>
+          )}
           <CustomButton
             sx={{
               bgcolor: "#075e54",
@@ -146,20 +180,35 @@ const Home = () => {
             onClick={() => handleModal("addGroup", true)}
             variant="contained"
           >
-           Group
+            Group
           </CustomButton>
-          <CustomButton
-            sx={{
-              bgcolor: "#075e54",
-              "&:hover": { bgcolor: "#075e54" },
-              color: "white",
-            }}
-            onClick={fetchQRCode}
-            variant="contained"
-          >
-            Get QR Code
-          </CustomButton>
+          {status === "authenticated" ? (
+            <CustomButton
+              sx={{
+                bgcolor: "#075e54",
+                "&:hover": { bgcolor: "#075e54" },
+                color: "white",
+              }}
+              onClick={WhatsappLogout}
+              variant="contained"
+            >
+              Logout
+            </CustomButton>
+          ) : (
+            <CustomButton
+              sx={{
+                bgcolor: "#075e54",
+                "&:hover": { bgcolor: "#075e54" },
+                color: "white",
+              }}
+              onClick={fetchQRCode}
+              variant="contained"
+            >
+              Get QR Code
+            </CustomButton>
+          )}
         </Stack>
+
         {customerMessage.map((message) => (
           <CustomAccordion key={message.id} message={message} />
         ))}
@@ -199,6 +248,7 @@ const Home = () => {
         <GroupView />
       </CustomModal>
       <CustomModal
+        maxWidth={"xl"}
         title="QR Code"
         openPopup={modals.showQRCode}
         setOpenPopup={() => handleModal("showQRCode", false)}
@@ -211,6 +261,12 @@ const Home = () => {
             style={{ maxWidth: "100%", height: "auto" }}
           />
         </Box>
+        <Typography
+          variant="body1"
+          sx={{ margin: "20px auto", textAlign: "center" }}
+        >
+          Please scan the QR Code before submitting.
+        </Typography>
         <CustomButton
           sx={{
             width: "100%",
