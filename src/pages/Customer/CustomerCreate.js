@@ -1,40 +1,21 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Box, Chip, Grid, TextField, Autocomplete } from "@mui/material";
-import CustomTextField from "../components/CustomTextField";
-import CustomButton from "../components/CustomButton";
-import { CustomLoader } from "../components/CustomLoader";
-import { useNotificationHandling } from "../components/useNotificationHandling";
-import { MessageAlert } from "../components/MessageAlert";
-import apiService from "../Service/apiService";
+import CustomTextField from "../../components/CustomTextField";
+import CustomButton from "../../components/CustomButton";
+import { CustomLoader } from "../../components/CustomLoader";
+import { useNotificationHandling } from "../../components/useNotificationHandling";
+import { MessageAlert } from "../../components/MessageAlert";
+import apiService from "../../Service/apiService";
 
-const AddCustomer = ({setOpenPopup}) => {
+const CustomerCreate = ({setOpenPopup,getCustomersData,groupOptions}) => {
   const [open, setOpen] = useState(false);
   const [customerData, setCustomerData] = useState({
     name: "",
     number: "",
     groups: [],
   });
-  const [groupOptions, setGroupOptions] = useState([]);
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
-
-  useEffect(() => {
-    const getAllGroup = async () => {
-      try {
-        setOpen(true);
-        const response = await apiService.getGroupData();
-        setGroupOptions(response.data); // Ensuring response.data is an array of group objects
-        console.info("Fetched group data:", response.data);
-
-      } catch (error) {
-        console.error("Error fetching group data", error);
-      } finally {
-        setOpen(false);
-      }
-    };
-
-    getAllGroup();
-  }, []);
 
   const handleInputChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -55,7 +36,8 @@ const AddCustomer = ({setOpenPopup}) => {
     };
     try {
       const response = await apiService.createCustomer(payload);
-      handleSuccess(response.data.message);
+      handleSuccess(response.data);
+      getCustomersData()
       setOpenPopup(false)
     } catch (error) {
       handleError(error);
@@ -131,4 +113,4 @@ const AddCustomer = ({setOpenPopup}) => {
   );
 };
 
-export default AddCustomer;
+export default CustomerCreate;

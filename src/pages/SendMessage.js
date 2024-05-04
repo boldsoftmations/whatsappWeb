@@ -118,7 +118,7 @@ const SendMessage = ({ setOpenPopup, fetchCustomerMessages,page }) => {
       formData.append("group", JSON.stringify(groupNames));
   
       const response = await apiService.sendMessage(formData);
-      handleSuccess(response.data.message);
+      handleSuccess(response.data);
       setOpenPopup(false);
       await fetchCustomerMessages(page);
     } catch (error) {

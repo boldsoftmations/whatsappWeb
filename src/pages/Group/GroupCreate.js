@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from "react";
 import { Box, Grid } from "@mui/material";
-import CustomTextField from "../components/CustomTextField";
-import CustomButton from "../components/CustomButton";
-import { CustomLoader } from "../components/CustomLoader";
-import { useNotificationHandling } from "../components/useNotificationHandling";
-import { MessageAlert } from "../components/MessageAlert";
-import apiService from "../Service/apiService";
+import { useNotificationHandling } from "../../components/useNotificationHandling";
+import apiService from "../../Service/apiService";
+import { MessageAlert } from "../../components/MessageAlert";
+import { CustomLoader } from "../../components/CustomLoader";
+import CustomTextField from "../../components/CustomTextField";
+import CustomButton from "../../components/CustomButton";
 
-const AddGroup = ({setOpenPopup}) => {
+
+const GroupCreate = ({setOpenPopup,getGroupsData}) => {
     const [open, setOpen] = useState(false);
     const [groupName, setGroupName] = useState('');  // Simplified state handling for a single field
     const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } = useNotificationHandling();
@@ -24,8 +25,8 @@ const AddGroup = ({setOpenPopup}) => {
       };
       try {
         const response = await apiService.createGroup(payload);
-        handleSuccess(response.data.message);
-        setGroupName('');  // Reset the input field after successful submission
+        handleSuccess(response.data);
+        getGroupsData()
         setOpenPopup(false)
       } catch (error) {
         handleError(error);
@@ -72,4 +73,4 @@ const AddGroup = ({setOpenPopup}) => {
     );
 };
 
-export default AddGroup;
+export default GroupCreate;

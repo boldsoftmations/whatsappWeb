@@ -1,11 +1,15 @@
 /* App.css */
 
-
 body, html {
-  height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f0f2f5;
+  background-color: #f0f2f5; /* This will be the default background color */
 }
 
+.main-content {
+  min-height: 100vh; /* Ensures that the main content area is at least as tall as the viewport */
+  width: 100%;
+  background-color: #f0f2f5; /* Sets a white background for the main content area */
+  padding: 24px;
+}

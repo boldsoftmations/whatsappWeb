@@ -13,22 +13,46 @@ const Login = (data) => {
     return axiosInstance.post("api/whatsapp/customer-data/", data);
   };
 
+  const getCustomerData = ( searchValue) => {
+    const params = new URLSearchParams();
+  
+    if (searchValue) {
+      params.append("search", searchValue);
+    }
+    return axiosInstance.get(`api/whatsapp/customer-data/?${params.toString()}`);
+  };
+
+  const updateCustomer = (id, data) => {
+    return axiosInstance.patch(`api/whatsapp/customer-data/${id}/`, data);
+  };
+  
   const createGroup = (data) => {
     return axiosInstance.post("api/whatsapp/customer-group/", data);
   };
 
-  const getGroupData = () => {
-    return axiosInstance.get(`api/whatsapp/customer-group/`);
-  };
+  const getGroupData = ( searchValue) => {
+    const params = new URLSearchParams();
   
+    if (searchValue) {
+      params.append("search", searchValue);
+    }
+    return axiosInstance.get(`api/whatsapp/customer-group/?${params.toString()}`);
+  };
+
   const sendMessage = (data) => {
     return axiosInstance.post("api/whatsapp/customer-whatsapp/", data);
   };
-
-  const getAllCustomerMessage = () => {
-    return axiosInstance.get(`api/whatsapp/customer-whatsapp/ `);
-  };
   
+  const getAllCustomerMessage = (page) => {
+    const params = new URLSearchParams();
+
+    if (page) {
+      params.append("page", page);
+    }
+
+    return axiosInstance.get(`api/whatsapp/customer-whatsapp/?${params.toString()}`);
+  };
+
   const getWhatsappStatus = () => {
     return axiosInstance.get(`api/whatsapp/qr-status/ `);
   };
@@ -36,6 +60,8 @@ const apiService = {
     Login,
     getQRCodeData,
     createCustomer,
+    getCustomerData,
+    updateCustomer,
     createGroup,
     getGroupData,
     sendMessage,

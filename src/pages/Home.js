@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { CssBaseline, Box, Toolbar, Stack, Pagination } from "@mui/material";
+import { CssBaseline, Box, Toolbar, Stack } from "@mui/material";
 import CustomButton from "../components/CustomButton";
 import CustomHeader from "../components/CustomHeader";
 import CustomModal from "../components/CustomModal";
 import SendMessage from "./SendMessage";
-import AddCustomer from "./AddCustomer";
-import AddGroup from "./AddGroup";
 import { CustomLoader } from "../components/CustomLoader";
 import apiService from "../Service/apiService";
 import { useNotificationHandling } from "../components/useNotificationHandling";
 import { MessageAlert } from "../components/MessageAlert";
 import CustomAccordion from "../components/AccordionItem";
+import CustomerView from "./Customer/CustomerView";
+import GroupView from "./Group/GroupView";
+import { CustomPagination } from "../components/CustomPagination";
 
 const Home = () => {
   const [modals, setModals] = useState({
@@ -23,95 +24,52 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [customerMessage, setCustomerMessage] = useState([]);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  // const websocketRef = useRef(null);
   const { handleSuccess, handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
-    const handleModal = useCallback((modalName, isOpen) => {
-      setModals((prevModals) => ({ ...prevModals, [modalName]: isOpen }));
-    }, []);
-  
+  const handleModal = useCallback((modalName, isOpen) => {
+    setModals((prevModals) => ({ ...prevModals, [modalName]: isOpen }));
+  }, []);
 
-  useEffect(() => {
-    fetchCustomerMessages(page);
-  }, [page]);
-
-  // const connectWebSocket = () => {
-  //   // Ensure the WebSocket connection closes before opening a new one
-  //   if (websocketRef.current) {
-  //     websocketRef.current.close();
-  //   }
-
-  //   // Replace 'yourserver.com/path' with your actual WebSocket server URL
-  //   websocketRef.current = new WebSocket(
-  //     "ws://crmbackend-glutape-staging.herokuapp.com/ws/custom_qr_login/"
-  //   );
-
-  //   websocketRef.current.onopen = () => {
-  //     console.log("WebSocket connected.");
-  //     // Send additional data to the server after the connection is established
-  //     websocketRef.current.send(JSON.stringify({ type: "status" }));
-  //   };
-
-  //   websocketRef.current.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-  //     if (data.scanned) {
-  //       console.log("QR Code has been scanned");
-  //       handleSuccess("QR Code has been scanned");
-  //       fetchQRCode(); // Fetch QR code or perform any other action as needed
-  //     }
-  //   };
-
-  //   websocketRef.current.onerror = (error) => {
-  //     console.error("WebSocket error:", error);
-  //     handleError("WebSocket error:", error);
-  //   };
-
-  //   websocketRef.current.onclose = () => {
-  //     console.log("WebSocket disconnected. Attempting to reconnect...");
-  //     // Attempt to reconnect every 5 seconds
-  //     setTimeout(connectWebSocket, 5000);
-  //   };
-  // };
-
-  const fetchCustomerMessages = async (page) => {
-    setOpen(true);
+  const fetchCustomerMessages = useCallback(async () => {
+    setLoading(true);
     try {
-      const response = await apiService.getAllCustomerMessage(page);
+      const response = await apiService.getAllCustomerMessage(currentPage);
       setCustomerMessage(response.data.results);
-      setTotalPages(
-        Math.ceil(response.data.count / response.data.results.length)
-      );
+      setTotalPages(Math.ceil(response.data.count / 25));
       console.info("Fetched customer messages:", response.data);
     } catch (error) {
       console.error("Error fetching customer messages", error);
     } finally {
-      setOpen(false);
+      setLoading(false);
     }
-  };
+  }, [currentPage]); // Dependencies include any values from the component scope that change over time and are used in the function
+
+  useEffect(() => {
+    fetchCustomerMessages();
+  }, [fetchCustomerMessages]);
 
   const handlePageChange = (event, value) => {
-    setPage(value);
+    setCurrentPage(value);
   };
 
   const fetchQRCode = async () => {
     setOpen(true);
     try {
       const response = await apiService.getQRCodeData();
-      if(response.data.data.qr_code){
-      setQrCodeUrl(response.data.data.qr_code);
+      if (response.data.data.qr_code) {
+        setQrCodeUrl(response.data.data.qr_code);
       }
       handleSuccess(response.data.message);
       handleModal("showQRCode", true);
-      // connectWebSocket();
       setOpen(false);
     } catch (error) {
-      console.log("error",error)
+      console.log("error", error);
       handleError(error);
       setOpen(false);
-    } 
+    }
   };
 
   const fetchWhatsappStatus = useCallback(async () => {
@@ -119,7 +77,7 @@ const Home = () => {
     const checkStatus = async () => {
       try {
         const response = await apiService.getWhatsappStatus();
-        handleSuccess(response.data.status);
+        handleSuccess(response.data);
         if (response.data.status !== "authenticated") {
           setTimeout(checkStatus, 3000); // Keep checking every 3 seconds
         } else {
@@ -133,8 +91,6 @@ const Home = () => {
     };
     checkStatus();
   }, [handleError, handleSuccess, handleModal]);
-
-  console.log("qrCodeUrl", qrCodeUrl);
 
   return (
     <>
@@ -150,7 +106,8 @@ const Home = () => {
       <Toolbar />
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: "100%", backgroundColor: "#f0f2f5" }}
+        className="main-content" // Applying the new CSS class
+        // sx={{ flexGrow: 1, p: 3, backgroundColor: "#f0f2f5" }}
       >
         <Stack
           direction="row"
@@ -178,7 +135,7 @@ const Home = () => {
             onClick={() => handleModal("addCustomer", true)}
             variant="contained"
           >
-            Add Customer
+            Customer
           </CustomButton>
           <CustomButton
             sx={{
@@ -189,7 +146,7 @@ const Home = () => {
             onClick={() => handleModal("addGroup", true)}
             variant="contained"
           >
-            Add Group
+           Group
           </CustomButton>
           <CustomButton
             sx={{
@@ -207,10 +164,10 @@ const Home = () => {
           <CustomAccordion key={message.id} message={message} />
         ))}
         <Box sx={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
+          <CustomPagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            handlePageChange={handlePageChange}
           />
         </Box>
       </Box>
@@ -222,22 +179,24 @@ const Home = () => {
         <SendMessage
           setOpenPopup={() => handleModal("sendMessage", false)}
           fetchCustomerMessages={fetchCustomerMessages}
-          page={page}
+          page={currentPage}
         />
       </CustomModal>
       <CustomModal
-        title="Add Customer"
+        fullScreen={"fullScreen"}
+        title="Customer"
         openPopup={modals.addCustomer}
         setOpenPopup={() => handleModal("addCustomer", false)}
       >
-        <AddCustomer setOpenPopup={() => handleModal("addCustomer", false)} />
+        <CustomerView />
       </CustomModal>
       <CustomModal
-        title="Add Group"
+        fullScreen={"fullScreen"}
+        title="Group"
         openPopup={modals.addGroup}
         setOpenPopup={() => handleModal("addGroup", false)}
       >
-        <AddGroup setOpenPopup={() => handleModal("addGroup", false)} />
+        <GroupView />
       </CustomModal>
       <CustomModal
         title="QR Code"

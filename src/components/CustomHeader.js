@@ -61,7 +61,6 @@ const CustomHeader = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
               <MenuItem onClick={Logout}>Logout</MenuItem>
             </Menu>
           </div>
