@@ -95,8 +95,8 @@ const Home = () => {
       if (
         response.data.status !== "authenticated" &&
         response.data.status !== "standby" &&
-        response.data.status !=="initialize" &&
-        response.data.status !=="qr"
+        response.data.status !== "initialize" &&
+        response.data.status !== "qr"
       ) {
         setTimeout(fetchWhatsappStatus, 3000);
       } else {
@@ -145,11 +145,16 @@ const Home = () => {
           {contact && (
             <Typography
               variant="body1"
-              sx={{ margin: "20px auto", textAlign: "center" }}
+              sx={{
+                margin: "20px auto",
+                textAlign: "center",
+                fontWeight: "bold", // Keep the text bold
+              }}
             >
-              Logged in From this number : {contact}
+              Whatsapp Logged in as: {contact}
             </Typography>
           )}
+
           <CustomButton
             sx={{
               bgcolor: "#075e54",
