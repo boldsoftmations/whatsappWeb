@@ -20,6 +20,7 @@ import { CustomLoader } from "../../components/CustomLoader";
 import { useNotificationHandling } from "../../components/useNotificationHandling";
 import { MessageAlert } from "../../components/MessageAlert";
 import CustomSearch from "../../components/CustomSearch";
+import { CustomPagination } from "../../components/CustomPagination";
 
 const CustomerView = () => {
   const [open, setOpen] = useState(false);
@@ -29,6 +30,8 @@ const CustomerView = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
   const [groupOptions, setGroupOptions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const { handleError, handleCloseSnackbar, alertInfo } =
     useNotificationHandling();
 
@@ -43,19 +46,24 @@ const CustomerView = () => {
   const getCustomersData = useCallback(async () => {
     try {
       setOpen(true);
-      const response = await apiService.getCustomerData(searchQuery);
-      setCustomerData(response.data);
+      const response = await apiService.getCustomerData(currentPage,searchQuery);
+      setCustomerData(response.data.results);
+      setTotalPages(Math.ceil(response.data.count / 25));
     } catch (error) {
       handleError(error);
       console.error("error", error);
     } finally {
       setOpen(false);
     }
-  }, [searchQuery, setOpen, setCustomerData, handleError]);
+  }, [currentPage,searchQuery, setOpen, setCustomerData, handleError]);
 
   useEffect(() => {
     getCustomersData();
   }, [getCustomersData]);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
 
   const handleFetchGroupOptions = async () => {
     try {
@@ -179,6 +187,13 @@ const handlePopupUpdate = async (rowData) => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CustomPagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            handlePageChange={handlePageChange}
+          />
+        </Box>
       </Grid>
       <CustomModal
         maxwidth={"xl"}

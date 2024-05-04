@@ -163,7 +163,7 @@ const Home = () => {
         {customerMessage.map((message) => (
           <CustomAccordion key={message.id} message={message} />
         ))}
-        <Box sx={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CustomPagination
             totalPages={totalPages}
             currentPage={currentPage}
