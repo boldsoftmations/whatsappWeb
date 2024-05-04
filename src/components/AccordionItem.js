@@ -40,7 +40,7 @@ const CustomAccordion = ({ message }) => {
                 aria-controls={`panel${message.id}-content`}
                 id={`panel${message.id}-header`}
             >
-                <Typography sx={{ flexShrink: 0 }}>(ID: {message.id}) Email: {message.email}</Typography>
+                <Typography sx={{ flexShrink: 0 }}>(ID: {message.id}) Email: {message.email},  Contact: {message.number}</Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ backgroundColor: '#ffffff' }}>
                 {message.image && (
