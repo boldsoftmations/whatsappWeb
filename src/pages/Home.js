@@ -49,10 +49,6 @@ const Home = () => {
     }
   }, [currentPage]); // Dependencies include any values from the component scope that change over time and are used in the function
 
-  useEffect(() => {
-    fetchCustomerMessages();
-  }, [fetchCustomerMessages]);
-
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
@@ -63,6 +59,7 @@ const Home = () => {
       const response = await apiService.WhatsappLogout();
       handleSuccess(response.data);
       setStatus(null);
+      setContact(null);
     } catch (error) {
       console.log("error fetch", error);
       handleError(error);
@@ -71,52 +68,56 @@ const Home = () => {
     }
   };
 
-  const fetchQRCode = async () => {
+  const fetchQRCode = useCallback(async () => {
     setOpen(true);
     try {
       const response = await apiService.getQRCodeData();
-      // Check if 'data' and 'qr_code' are present in the response before trying to access 'qr_code'
       if (response.data.status === "authenticated") {
         setStatus(response.data.status);
       }
-      if (response.data.number) {
-        setContact(response.data.number);
-      }
-      if (response.data && response.data.data && response.data.data.qr_code) {
+
+      if (response.data.data && response.data.data.qr_code) {
         setQrCodeUrl(response.data.data.qr_code);
-      } else {
-        // Optionally handle the case where 'qr_code' is not present
-        console.log("QR Code not found in response:", response.data);
+        handleModal("showQRCode", true);
       }
       handleSuccess(response.data);
-      handleModal("showQRCode", true);
     } catch (error) {
-      console.log("error fetch", error);
       handleError(error);
     } finally {
-      setOpen(false); // Ensure setOpen is called in finally to close the loader no matter what
+      setOpen(false);
     }
-  };
+  }, [handleError, handleSuccess, handleModal]);
 
   const fetchWhatsappStatus = useCallback(async () => {
-    setLoading(true); // Activate the loader for WhatsApp status check.
-    const checkStatus = async () => {
-      try {
-        const response = await apiService.getWhatsappStatus();
+    setLoading(true);
+    try {
+      const response = await apiService.getWhatsappStatus();
+      if (
+        response.data.status !== "authenticated" &&
+        response.data.status !== "standby" &&
+        response.data.status !=="initialize" &&
+        response.data.status !=="qr"
+      ) {
+        setTimeout(fetchWhatsappStatus, 3000);
+      } else {
+        setStatus(response.data.status);
+        setContact(response.data.number);
         handleSuccess(response.data);
-        if (response.data.status !== "authenticated") {
-          setTimeout(checkStatus, 3000); // Keep checking every 3 seconds
-        } else {
-          handleModal("showQRCode", false); // Close the QR code modal on success
-          setLoading(false); // Deactivate the loader
+        if (response.data.status === "authenticated") {
+          handleModal("showQRCode", false);
         }
-      } catch (error) {
-        handleError(error);
-        setLoading(false); // Deactivate the loader on error
+        setLoading(false);
       }
-    };
-    checkStatus();
+    } catch (error) {
+      handleError(error);
+      setLoading(false);
+    }
   }, [handleError, handleSuccess, handleModal]);
+
+  useEffect(() => {
+    fetchCustomerMessages();
+    fetchWhatsappStatus();
+  }, [fetchCustomerMessages, fetchWhatsappStatus]);
 
   return (
     <>
@@ -248,7 +249,7 @@ const Home = () => {
         <GroupView />
       </CustomModal>
       <CustomModal
-        maxWidth={"xl"}
+        maxWidth={"lg"}
         title="QR Code"
         openPopup={modals.showQRCode}
         setOpenPopup={() => handleModal("showQRCode", false)}
