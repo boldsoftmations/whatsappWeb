@@ -188,7 +188,7 @@ const Home = () => {
           >
             Group
           </CustomButton>
-          {status === "authenticated" ? (
+          {/* {status === "authenticated" ? (
             <CustomButton
               sx={{
                 bgcolor: "#075e54",
@@ -212,7 +212,7 @@ const Home = () => {
             >
               Get QR Code
             </CustomButton>
-          )}
+          )} */}
         </Stack>
 
         {customerMessage.map((message) => (
