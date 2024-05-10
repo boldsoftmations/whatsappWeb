@@ -9,7 +9,7 @@ import {
 
 const axiosInstance = axios.create({
   baseURL: "https://crmbackend-glutape-staging.herokuapp.com/",
-  // baseURL: "https://crmbackend-glutape-development.herokuapp.com",
+  // baseURL: "https://crmbackend-glutape.herokuapp.com",
 });
 
 axiosInstance.interceptors.request.use(
